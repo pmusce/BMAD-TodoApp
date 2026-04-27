@@ -45,9 +45,9 @@ development_status:
   # ── Epic 1: Project Foundation & Developer Experience ──────────────────────
   epic-1: in-progress
   1-1-monorepo-root-scaffold: done
-  1-2-frontend-workspace-bootstrap: ready-for-dev
-  1-3-backend-workspace-bootstrap: backlog
-  1-4-shared-types-foundation: backlog
+  1-2-frontend-workspace-bootstrap: done
+  1-3-backend-workspace-bootstrap: done
+  1-4-shared-types-foundation: done
   1-5-playwright-e2e-scaffold: backlog
   1-6-github-actions-ci-configuration: backlog
   epic-1-retrospective: optional
