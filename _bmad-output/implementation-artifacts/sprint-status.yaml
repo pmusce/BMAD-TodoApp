@@ -50,11 +50,11 @@ development_status:
   1-4-shared-types-foundation: done
   1-5-playwright-e2e-scaffold: done
   1-6-github-actions-ci-configuration: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: done
 
   # ── Epic 2: Task REST API & Data Layer ─────────────────────────────────────
-  epic-2: backlog
-  2-1-sqlite-schema-and-taskrepository: backlog
+  epic-2: in-progress
+  2-1-sqlite-schema-and-taskrepository: done
   2-2-fastify-plugins-db-cors-error-handler: backlog
   2-3-task-route-handlers-with-json-schema-validation: backlog
   2-4-server-route-unit-tests: backlog

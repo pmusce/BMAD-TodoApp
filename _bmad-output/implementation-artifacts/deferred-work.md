@@ -1,5 +1,13 @@
 # Deferred Work
 
+## Deferred from: code review of 2-1-sqlite-schema-and-taskrepository (2026-04-28)
+
+- `update()` get-check-update-get pattern has no transaction wrapper — better-sqlite3 is synchronous so no actual race today; revisit if async SQLite is ever adopted
+- `create()` uses non-null assertion `row!` after `findByIdStmt.get(lastInsertRowid)` — unreachable in practice but adds brittleness; add a throw guard in a future hardening pass
+- Stateful test suite — tests 3-6 depend on shared DB state; single failure cascades; acceptable for small in-memory integration tests, refactor when test count grows
+- `SELECT *` in `findAll` / `findByIdStmt` — implicit column dependency; use explicit column list when new schema migrations are introduced
+- `updateStmt` only updates `completed` field — `text` update not possible; extend when edit-text is a product requirement
+
 ## Deferred from: code review of 1-6-github-actions-ci-configuration (2026-04-27)
 
 - No `pull_request` trigger in `.github/workflows/ci.yml` — spec scopes to `push` only; add PR trigger in a future CI hardening story

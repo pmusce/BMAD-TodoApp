@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest'
 
 describe('@shared/types resolution in client workspace', () => {
   it('Task has correct runtime shape', () => {
-    const task: Task = { id: 1, text: 'buy milk', completed: false, createdAt: 1_000_000 }
+    const task: Task = { id: 1, text: 'buy milk', completed: false, createdAt: 1_000_000, userId: null }
     expect(typeof task.id).toBe('number')
     expect(typeof task.text).toBe('string')
     expect(typeof task.completed).toBe('boolean')

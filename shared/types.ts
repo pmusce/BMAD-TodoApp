@@ -11,6 +11,7 @@ export interface Task {
   text: string;
   completed: boolean;
   createdAt: number; // Unix milliseconds — never ISO string
+  userId: number | null; // reserved for future auth; null until auth is implemented
 }
 
 export interface CreateTaskPayload {

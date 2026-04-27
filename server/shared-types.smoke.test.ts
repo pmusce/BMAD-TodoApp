@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 
 test('@shared/types — Task resolves in server workspace', () => {
-  const task: Task = { id: 1, text: 'buy milk', completed: false, createdAt: 1_000_000 }
+  const task: Task = { id: 1, text: 'buy milk', completed: false, createdAt: 1_000_000, userId: null }
   assert.strictEqual(typeof task.id, 'number')
 })
 
