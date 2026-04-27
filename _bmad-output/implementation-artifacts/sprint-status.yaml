@@ -1,0 +1,80 @@
+# generated: 2026-04-27
+# last_updated: 2026-04-27
+# project: Todo App
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+#
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-04-27
+last_updated: 2026-04-27
+project: Todo App
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # ── Epic 1: Project Foundation & Developer Experience ──────────────────────
+  epic-1: in-progress
+  1-1-monorepo-root-scaffold: done
+  1-2-frontend-workspace-bootstrap: ready-for-dev
+  1-3-backend-workspace-bootstrap: backlog
+  1-4-shared-types-foundation: backlog
+  1-5-playwright-e2e-scaffold: backlog
+  1-6-github-actions-ci-configuration: backlog
+  epic-1-retrospective: optional
+
+  # ── Epic 2: Task REST API & Data Layer ─────────────────────────────────────
+  epic-2: backlog
+  2-1-sqlite-schema-and-taskrepository: backlog
+  2-2-fastify-plugins-db-cors-error-handler: backlog
+  2-3-task-route-handlers-with-json-schema-validation: backlog
+  2-4-server-route-unit-tests: backlog
+  epic-2-retrospective: optional
+
+  # ── Epic 3: Task Management Frontend ───────────────────────────────────────
+  epic-3: backlog
+  3-1-tasks-api-client: backlog
+  3-2-usetasks-hook: backlog
+  3-3-taskinput-component: backlog
+  3-4-taskitem-component: backlog
+  3-5-tasklist-component: backlog
+  3-6-errorboundary-component: backlog
+  3-7-spa-routing-homepage-and-global-styles: backlog
+  epic-3-retrospective: optional
+
+  # ── Epic 4: Quality Gates & Production Deployment ──────────────────────────
+  epic-4: backlog
+  4-1-playwright-e2e-test-specs: backlog
+  4-2-readme-and-architecture-decision-summary: backlog
+  4-3-vercel-and-railway-deployment-configuration: backlog
+  4-4-test-coverage-gate-verification: backlog
+  epic-4-retrospective: optional
