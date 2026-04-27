@@ -16,3 +16,10 @@
 - `rootDir: ".."` + `node build/server/server.js` coupling — intentional NodeNext cross-workspace fix; document clearly for any future tsconfig changes
 - No CI-integrated test script for `shared/types.test.ts` — `shared/` is not an npm workspace so `--workspaces` skips it; add a root-level `test:shared` script in a CI setup story
 - `@ts-expect-error` negative shape tests not present — type constraint rejection is untested; add in a future type-safety hardening story
+
+## Deferred from: code review of 1-5-playwright-e2e-scaffold (2026-04-27)
+
+- `baseURL: 'http://localhost:5173'` hardcoded in `e2e/playwright.config.ts` — no `process.env.BASE_URL` override; breaks in Docker or remote dev environments; acceptable for single-dev local scaffold, add env-var fallback in a future hardening story
+- `reuseExistingServer: !process.env.CI` is falsy when `CI=''` (empty string) — edge case in some CI systems; most set `CI=true` or `CI=1`; impact is low; revisit if CI provider uses `CI=''` convention
+- No `outputDir` configured in playwright.config.ts — `test-results/` and `playwright-report/` land at monorepo root; scoping under `e2e/` would be cleaner; gitignore already covers root-level paths; defer to Epic 4
+- No `retries` setting — acceptable for stub scaffold; add `retries: process.env.CI ? 2 : 0` when real tests are written in Epic 4
