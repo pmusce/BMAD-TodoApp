@@ -1,5 +1,13 @@
 # Deferred Work
 
+## Deferred from: code review of 1-6-github-actions-ci-configuration (2026-04-27)
+
+- No `pull_request` trigger in `.github/workflows/ci.yml` — spec scopes to `push` only; add PR trigger in a future CI hardening story
+- No Playwright HTML report artifact upload in `.github/workflows/e2e.yml` — add `actions/upload-artifact` step in Epic 4 when real E2E tests are written
+- `node --test *.ts` (via `test:shared`) relies on Node 22 implicit TypeScript stripping — works on Node 22.12+ LTS; confirm or add `--experimental-strip-types` flag if CI runner Node version is ever pinned to < 22.6
+- No `concurrency` group on either workflow — add `concurrency: cancel-in-progress: true` to avoid wasted runner minutes as test suite grows
+- No `permissions` block for GITHUB_TOKEN on either workflow — add `permissions: contents: read` in a future security hardening story
+
 ## Deferred from: code review of 1-3-backend-workspace-bootstrap (2026-04-27)
 
 - `server/package.json` has stale scaffold boilerplate (description, keywords, author, license) — cosmetic, not actionable now

@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "test": "npm run test --workspaces --if-present",
+    "test:shared": "node --test shared/types.test.ts",
     "lint": "npm run lint --workspaces --if-present",
     "test:e2e": "playwright test --config e2e/playwright.config.ts",
     "test:e2e:ui": "playwright test --ui --config e2e/playwright.config.ts"
