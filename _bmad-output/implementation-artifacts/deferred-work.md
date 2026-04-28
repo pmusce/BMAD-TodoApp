@@ -1,5 +1,10 @@
 # Deferred Work
 
+## Deferred from: code review of 3-2-usetasks-hook (2026-04-28)
+
+- Stale snapshot / ghost-restore under concurrent mutations (e.g. deleteTask double-click): failed rollback restores pre-optimistic state wiping a concurrent committed change — requires mutation queue or abort logic beyond story scope [useTasks.ts:19,54]
+- `toggleTask` stale `.completed` under rapid double-call: both calls read same closure-bound value and send duplicate PATCH requests, leaving UI and server out of sync — concurrent mutation concern beyond story scope [useTasks.ts:41]
+
 ## Deferred from: code review of 2-4-server-route-unit-tests (2026-04-28)
 
 - `noEmit: true` in `server/tsconfig.json` means `npm run build` (tsc) emits nothing — root cause: production files use `.ts` import extensions which require `allowImportingTsExtensions` which requires `noEmit`; Node.js v24 native TS runs these fine, but a compiled production build needs a non-tsc toolchain (esbuild, tsx, or switching to `.js` imports with a Node.js loader); defer to a future infra story when deployment strategy is finalised
