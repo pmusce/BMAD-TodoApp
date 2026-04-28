@@ -1,5 +1,11 @@
 # Deferred Work
 
+## Deferred from: code review of 2-2-fastify-plugins-db-cors-error-handler (2026-04-28)
+
+- `cors.ts`: `CORS_ORIGIN ?? fallback` does not catch empty-string env var — use `||` or startup validation if multi-env deployment is required
+- `errorHandler.ts`: No structured logging for 4xx client errors — add `fastify.log.warn(error)` for client errors when audit logging is needed
+- All plugins: No `name` metadata on `fp()` wrappers — add `{ name: 'db-plugin' }` etc. for clearer Fastify dependency debug output
+
 ## Deferred from: code review of 2-1-sqlite-schema-and-taskrepository (2026-04-28)
 
 - `update()` get-check-update-get pattern has no transaction wrapper — better-sqlite3 is synchronous so no actual race today; revisit if async SQLite is ever adopted

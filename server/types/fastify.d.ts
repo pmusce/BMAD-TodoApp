@@ -1,3 +1,9 @@
-// Reserved for FastifyInstance type augmentation.
-// The `db` decorator is added in Story 2.1 (sqlite-schema-and-taskrepository).
+import type Database from 'better-sqlite3'
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    db: Database.Database
+  }
+}
+
 export {}

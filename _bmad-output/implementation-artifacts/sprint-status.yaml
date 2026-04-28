@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-27
-last_updated: 2026-04-27
+last_updated: 2026-04-28
 project: Todo App
 project_key: NOKEY
 tracking_system: file-system
@@ -55,7 +55,7 @@ development_status:
   # ── Epic 2: Task REST API & Data Layer ─────────────────────────────────────
   epic-2: in-progress
   2-1-sqlite-schema-and-taskrepository: done
-  2-2-fastify-plugins-db-cors-error-handler: backlog
+  2-2-fastify-plugins-db-cors-error-handler: done
   2-3-task-route-handlers-with-json-schema-validation: backlog
   2-4-server-route-unit-tests: backlog
   epic-2-retrospective: optional
