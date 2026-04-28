@@ -1,5 +1,27 @@
 # Deferred Work
 
+## Deferred from: code review of 3-7-spa-routing-homepage-and-global-styles (2026-04-28)
+
+- `index.css`: Native `[type="checkbox"]` `min-width/min-height` sizing does not reliably enlarge the tap hit area in WebKit/Safari — the visual checkbox remains ~16×16px and the extra space is passive. Story AC6 specifies "computed CSS size", which passes; a robust cross-browser approach would use an invisible `::after` overlay or size the `<label>` instead. Defer to a design/accessibility hardening pass.
+- `index.css`: `.task-list*` / `.task-error-banner` styles appear in the Story 3.7 diff because they were added in the working tree by Story 3.5 but never committed. They are correct and should be committed as part of the overall story history; no change required.
+- `HomePage.tsx`: No visible `<h1>` page heading or app title in the rendered output. Not required by story ACs or WCAG 2.1 Level A; defer to a future UX / design-token pass when application branding is decided.
+
+## Deferred from: code review of 3-5-tasklist-component (2026-04-28)
+
+- `TaskList.tsx`: Empty-state message ("No tasks yet") renders alongside the error banner when `tasks=[]` and `error` is non-null — correct UX for failed-first-task scenario; revisit if product design specifies a different empty+error state treatment
+- `index.css`: Hardcoded hex colors in TaskList styles (e.g. `#444`, `#888`, `#721c24`) — no CSS variable system or contrast verification; defer to a global styling/design-token pass
+- `TaskList.test.tsx`: `getAllByRole('listitem')` in reverse-chrono test is fragile if completed tasks are colocated in the same query — functional for the specific test case; tighten selector scope if test failures emerge after Story 3.6/3.7 add more list items
+
+## Deferred from: code review of 3-4-taskitem-component (2026-04-28)
+
+- `TaskItem.tsx:16`: `Intl.RelativeTimeFormat` instantiated on every render — move to a module-level constant for minor allocation savings; no functional impact for v1
+- `TaskItem.tsx`: No in-flight guard for double-click on toggle/delete — intentional per optimistic UI architecture; `useTasks` handles concurrent mutation state
+- Touch targets ≥ 44×44 CSS px (FR27) — not implemented in `TaskItem`; explicitly an AC of Story 3.7 (`SPA Routing, HomePage, and Global Styles`)
+
+## Deferred from: code review of 3-3-taskinput-component (2026-04-28)
+
+- `TaskInput`: focus not restored when `createTask` prop rejects — `inputRef.current?.focus()` is only reached if `await createTask(trimmed)` resolves; in the current architecture `useTasks.createTask` never re-throws so this is unreachable, but if the prop contract ever changes the focus is silently not restored on failure. Add try/finally or ensure `focus()` runs unconditionally if the prop contract is widened.
+
 ## Deferred from: code review of 3-2-usetasks-hook (2026-04-28)
 
 - Stale snapshot / ghost-restore under concurrent mutations (e.g. deleteTask double-click): failed rollback restores pre-optimistic state wiping a concurrent committed change — requires mutation queue or abort logic beyond story scope [useTasks.ts:19,54]

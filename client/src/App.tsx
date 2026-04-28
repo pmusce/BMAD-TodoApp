@@ -1,9 +1,10 @@
-import { Routes, Route } from 'react-router'
+import { Routes, Route } from "react-router";
+import { HomePage } from "./pages/HomePage";
 
 export function App() {
   return (
     <Routes>
-      <Route path="/" element={<div>Todo App</div>} />
+      <Route path="/" element={<HomePage />} />
     </Routes>
-  )
+  );
 }

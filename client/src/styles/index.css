@@ -9,3 +9,69 @@ body {
   margin: 0;
   font-family: system-ui, sans-serif;
 }
+
+/* TaskList */
+.task-list {
+  width: 100%;
+}
+
+.task-list__loading {
+  text-align: center;
+  color: #666;
+}
+
+.task-list__heading {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+  color: #444;
+}
+
+.task-list__section {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.task-empty-state {
+  text-align: center;
+  color: #888;
+  margin-top: 2rem;
+}
+
+.task-error-banner {
+  background: #fff0f0;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+/* HomePage layout — responsive from 320px to 1440px */
+.home-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1rem;
+  width: 100%;
+}
+
+/* Focus rings — :focus-visible avoids rings on mouse click (FR21, NFR11) */
+input:focus-visible,
+button:focus-visible,
+[type="checkbox"]:focus-visible {
+  outline: 2px solid #0057b8;
+  outline-offset: 2px;
+}
+
+/* Touch targets — minimum 44×44 CSS px (FR27) */
+[type="checkbox"] {
+  min-width: 44px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+button {
+  min-width: 44px;
+  min-height: 44px;
+}
