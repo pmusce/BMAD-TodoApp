@@ -356,8 +356,8 @@ client/src/components/TaskItem.test.tsx   ← co-located
 client/src/hooks/useTasks.ts
 client/src/hooks/useTasks.test.ts         ← co-located
 
-server/src/routes/taskRoutes.ts
-server/src/routes/taskRoutes.test.ts      ← co-located
+server/routes/taskRoutes.ts
+server/routes/taskRoutes.test.ts      ← co-located
 ```
 
 **Exception:** Playwright E2E tests live in `e2e/` at monorepo root — they are not co-located because they test the full stack, not individual modules.
@@ -374,16 +374,16 @@ todo-app/
 │   └── types.ts       ← Task interface lives here
 ├── client/src/
 │   └── (imports from ../../shared/types)
-├── server/src/
+├── server/
 │   └── (imports from ../../shared/types)
 ```
 
 **`shared/types.ts` owns:**
-- `Task` interface (camelCase, matching API response shape)
+- `Task` interface (camelCase, matching API response shape) — includes `userId: number | null` (reserved for future auth, always `null` in v1)
 - `CreateTaskPayload`, `UpdateTaskPayload` request body types
 - HTTP error response type `ApiError`
 
-**Anti-pattern:** Duplicating the `Task` type in `client/src/types.ts` AND `server/src/types.ts` independently — they will diverge.
+**Anti-pattern:** Duplicating the `Task` type in `client/src/types.ts` AND `server/types/` independently — they will diverge.
 
 ---
 
@@ -395,13 +395,13 @@ todo-app/
 
 ```json
 // GET /api/tasks
-[{ "id": 1, "text": "Buy milk", "completed": false, "createdAt": 1714167600000 }]
+[{ "id": 1, "text": "Buy milk", "completed": false, "createdAt": 1714167600000, "userId": null }]
 
 // POST /api/tasks → 201
-{ "id": 2, "text": "Call dentist", "completed": false, "createdAt": 1714167700000 }
+{ "id": 2, "text": "Call dentist", "completed": false, "createdAt": 1714167700000, "userId": null }
 
 // PATCH /api/tasks/:id → 200
-{ "id": 2, "text": "Call dentist", "completed": true, "createdAt": 1714167700000 }
+{ "id": 2, "text": "Call dentist", "completed": true, "createdAt": 1714167700000, "userId": null }
 
 // DELETE /api/tasks/:id → 204 (no body)
 ```
@@ -535,10 +535,10 @@ Rollback snapshots are captured as a local `const previous = tasks` before apply
 
 | FR Category | Directory / File |
 |-------------|------------------|
-| Task Management (FR1–5) | `client/src/hooks/useTasks.ts` + `server/src/routes/taskRoutes.ts` |
+| Task Management (FR1–5) | `client/src/hooks/useTasks.ts` + `server/routes/taskRoutes.ts` |
 | Task List Display (FR6–10) | `client/src/components/TaskList.tsx`, `TaskItem.tsx` |
 | Application States (FR11–15) | `client/src/components/TaskList.tsx` (conditional render branches) |
-| Data Persistence (FR16–19) | `server/src/repositories/TaskRepository.ts` + `server/migrations/` |
+| Data Persistence (FR16–19) | `server/repositories/TaskRepository.ts` + `server/migrations/` |
 | Accessibility & Navigation (FR20–24) | Every component + `client/src/App.tsx` (React Router) |
 | App Infrastructure (FR25–31) | `shared/types.ts`, `e2e/`, `client/vite.config.ts`, `.github/workflows/` |
 
@@ -634,7 +634,7 @@ todo-app/
 #### API Boundary (client ↔ server)
 
 - **Entry point (client side):** `client/src/api/tasksApi.ts` — the only file that calls `fetch`. All calls go to `VITE_API_URL/api/tasks`.
-- **Entry point (server side):** `server/src/routes/taskRoutes.ts` — the only file that registers HTTP handlers.
+- **Entry point (server side):** `server/routes/taskRoutes.ts` — the only file that registers HTTP handlers.
 - **Contract:** `Task`, `CreateTaskPayload`, `UpdateTaskPayload`, `ApiError` in `shared/types.ts`. Both sides import from here — no independent type definitions.
 - **Rule:** No component or hook other than `useTasks` may call `tasksApi` directly.
 

@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "fastify start -l info -P app.ts",
-    "build": "tsc",
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit",
     "start": "node build/server/server.js",
-    "test": "node --test",
-    "test:watch": "node --test --watch",
+    "test": "node --experimental-test-module-mocks --test",
+    "test:watch": "node --experimental-test-module-mocks --test --watch",
     "lint": "eslint . --ext .ts"
   },
   "keywords": [],

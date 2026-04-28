@@ -1,5 +1,5 @@
 # generated: 2026-04-27
-# last_updated: 2026-04-27
+# last_updated: 2026-04-28
 # project: Todo App
 # project_key: NOKEY
 # tracking_system: file-system
@@ -56,9 +56,9 @@ development_status:
   epic-2: in-progress
   2-1-sqlite-schema-and-taskrepository: done
   2-2-fastify-plugins-db-cors-error-handler: done
-  2-3-task-route-handlers-with-json-schema-validation: backlog
-  2-4-server-route-unit-tests: backlog
-  epic-2-retrospective: optional
+  2-3-task-route-handlers-with-json-schema-validation: done
+  2-4-server-route-unit-tests: done
+  epic-2-retrospective: done
 
   # ── Epic 3: Task Management Frontend ───────────────────────────────────────
   epic-3: backlog

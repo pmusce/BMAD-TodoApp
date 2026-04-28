@@ -1,5 +1,17 @@
 # Deferred Work
 
+## Deferred from: code review of 2-4-server-route-unit-tests (2026-04-28)
+
+- `noEmit: true` in `server/tsconfig.json` means `npm run build` (tsc) emits nothing — root cause: production files use `.ts` import extensions which require `allowImportingTsExtensions` which requires `noEmit`; Node.js v24 native TS runs these fine, but a compiled production build needs a non-tsc toolchain (esbuild, tsx, or switching to `.js` imports with a Node.js loader); defer to a future infra story when deployment strategy is finalised
+- `--experimental-test-module-mocks` Node.js flag is subject to API changes until it stabilises; pin Node.js version in CI and watch for deprecation when upgrading
+- `DELETE /api/tasks/:id` returns 204 for non-existent IDs (story specifies happy-path only); add 404 guard if delete-on-missing-id semantics are hardened in a future story
+
+## Deferred from: code review of 2-3-task-route-handlers-with-json-schema-validation (2026-04-28)
+
+- No response schema on any task route — not a correctness issue, pre-existing pattern; add response schemas for serialization performance and validation in a future hardening story
+- Params schema `id` has no `minimum: 1` — negative/zero IDs pass AJV but repo returns undefined/false; add `minimum: 1` when ID validation standards are formalized
+- Dual-layer whitespace validation (schema `minLength:1` + handler trim guard) — intentional design, documented in story dev notes; could cause inconsistent 400 messages; revisit when API contract is stabilized
+
 ## Deferred from: code review of 2-2-fastify-plugins-db-cors-error-handler (2026-04-28)
 
 - `cors.ts`: `CORS_ORIGIN ?? fallback` does not catch empty-string env var — use `||` or startup validation if multi-env deployment is required
