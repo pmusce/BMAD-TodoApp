@@ -1,0 +1,85 @@
+{
+  "timestamp": "2026-04-28T21:15:35.962Z",
+  "url": "http://localhost:5173",
+  "environment": {
+    "formFactor": "desktop",
+    "throttling": "none (local baseline)",
+    "nodeVersion": "v24.11.0",
+    "lighthouseVersion": "13.1.0"
+  },
+  "metrics": {
+    "firstContentfulPaint": {
+      "value": 4.64085,
+      "unit": "ms"
+    },
+    "largestContentfulPaint": {
+      "value": 10.091400000000002,
+      "unit": "ms"
+    },
+    "totalBlockingTime": {
+      "value": 0,
+      "unit": "ms"
+    },
+    "cumulativeLayoutShift": {
+      "value": 0.008768,
+      "unit": "score"
+    },
+    "speedIndex": {
+      "value": 30.48017999883294,
+      "unit": "ms"
+    },
+    "performanceScore": {
+      "value": 100,
+      "unit": "percent"
+    }
+  },
+  "nfrCompliance": {
+    "NFR2-initial-load-1500ms": {
+      "threshold": 1500,
+      "measured": 10.091400000000002,
+      "unit": "ms",
+      "pass": true,
+      "note": "LCP used as proxy for initial load completion (no throttling)"
+    },
+    "NFR4-cls-below-0.1": {
+      "threshold": 0.1,
+      "measured": 0.008768,
+      "unit": "score",
+      "pass": true
+    },
+    "NFR5-no-main-thread-blocking": {
+      "threshold": 300,
+      "measured": 0,
+      "unit": "ms",
+      "pass": true,
+      "note": "TBT ≤ 300ms indicates no significant main thread blocking"
+    },
+    "NFR1-interaction-300ms": {
+      "threshold": 300,
+      "measured": 54,
+      "unit": "ms",
+      "pass": true,
+      "note": "Wall-clock time from user action to UI update (worst case shown)"
+    }
+  },
+  "interactionTimings": {
+    "createTask": {
+      "measured": 18,
+      "threshold": 300,
+      "unit": "ms",
+      "pass": true
+    },
+    "toggleTask": {
+      "measured": 54,
+      "threshold": 300,
+      "unit": "ms",
+      "pass": true
+    },
+    "deleteTask": {
+      "measured": 17,
+      "threshold": 300,
+      "unit": "ms",
+      "pass": true
+    }
+  }
+}

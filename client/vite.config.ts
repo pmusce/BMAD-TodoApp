@@ -14,6 +14,13 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     passWithNoTests: true,
+    coverage: {
+      include: ['src/hooks/**', 'src/components/**'],
+      thresholds: {
+        lines: 70,
+        branches: 70,
+      },
+    },
   },
 })
 

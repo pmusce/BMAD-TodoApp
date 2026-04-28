@@ -7,7 +7,7 @@ export const createTaskSchema = {
     required: ['text'],
     additionalProperties: false,
     properties: {
-      text: { type: 'string', minLength: 1 },
+      text: { type: 'string', minLength: 1, maxLength: 500 },
     },
   },
 } as const

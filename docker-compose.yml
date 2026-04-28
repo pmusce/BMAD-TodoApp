@@ -1,0 +1,106 @@
+services:
+  # ── Backend (Fastify + SQLite) ───────────────────────────────────
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_PATH: ./data/todo.db
+      CORS_ORIGIN: http://localhost:5173
+    volumes:
+      - sqlite-data:/app/server/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/api/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # ── Frontend (nginx serving Vite build) ──────────────────────────
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3000
+    ports:
+      - "5173:80"
+    networks:
+      - app-network
+    depends_on:
+      server:
+        condition: service_healthy
+
+  # ── Dev: Backend with hot-reload ─────────────────────────────────
+  server-dev:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm ci --workspace=server && npm run dev -w server"
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      DATABASE_PATH: ./data/todo.db
+      CORS_ORIGIN: http://localhost:5173
+    volumes:
+      - .:/app
+      - server-node-modules:/app/node_modules
+      - sqlite-data:/app/server/data
+    networks:
+      - app-network
+    profiles:
+      - dev
+
+  # ── Dev: Frontend with hot-reload ────────────────────────────────
+  client-dev:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm ci --workspace=client && npm run dev -w client -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3000
+    volumes:
+      - .:/app
+      - client-node-modules:/app/node_modules
+    networks:
+      - app-network
+    depends_on:
+      - server-dev
+    profiles:
+      - dev
+
+  # ── Test: Run workspace unit tests ──────────────────────────────
+  # Note: 'npm test' runs workspace unit tests only (not E2E).
+  # For E2E tests in containers, a separate service with the Playwright
+  # image and a running app stack is required.
+  test-runner:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm test"
+    volumes:
+      - .:/app
+      - test-node-modules:/app/node_modules
+    networks:
+      - app-network
+    depends_on:
+      server:
+        condition: service_healthy
+    profiles:
+      - test
+
+volumes:
+  sqlite-data:
+  server-node-modules:
+  client-node-modules:
+  test-node-modules:
+
+networks:
+  app-network:
+    driver: bridge

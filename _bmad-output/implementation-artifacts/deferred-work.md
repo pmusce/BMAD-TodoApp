@@ -1,5 +1,48 @@
 # Deferred Work
 
+## Deferred from: code review of 4-7-security-review (2026-04-28)
+
+- `client/nginx.conf` — CSP header not added (complex to configure for Vite-bundled SPA with inline scripts; explicitly deferred in spec)
+- `client/nginx.conf` — HSTS (`Strict-Transport-Security`) not added (HTTPS out of scope for local/dev deployment; explicitly deferred in spec)
+- `client/nginx.conf` — `Permissions-Policy` header not added (deny-by-default for camera/mic/geo; out of scope for v1)
+- `client/nginx.conf` — No gzip/brotli compression configured (optimization, out of scope for this story)
+- `server/routes/schemas/taskSchemas.ts` — `maxLength: 500` has no DB-layer enforcement (`tasks.text` column is unbounded TEXT); requires new migration with `CHECK(length(text) <= 500)`; deferred as out of quick-win scope
+- `server/routes/schemas/taskSchemas.ts` — Unicode supplementary-plane characters (4-byte emoji etc.) count as 1 code point in JSON Schema `maxLength` but up to 4 bytes in SQLite storage; theoretical amplification edge case for v1
+- `server/routes/schemas/taskSchemas.ts` — `id` params (`updateTaskSchema.params`, `taskParamsSchema.params`) accept negative integers; `minimum: 1` not enforced (pre-existing)
+- `server/routes/schemas/taskSchemas.ts` — `updateTaskSchema.params` missing `additionalProperties: false` (pre-existing inconsistency)
+- `server/routes/schemas/taskSchemas.ts` — No response schemas on any route (Fastify serialization acceleration + output validation; pre-existing)
+
+
+
+- No test cleanup / orphaned tasks accumulate in E2E test database — pre-existing pattern across all E2E test files; not introduced by this story
+- `test:perf` and `test:coverage` scripts in root `package.json` — belong to stories 4-5 and 4-4 respectively; out of scope for 4-6
+
+## Deferred from: code review of 4-5-performance-testing (2026-04-28)
+
+- `e2e/tests/performance.spec.ts:8` — `appendInteractionTiming` merge-vs-overwrite ordering: Lighthouse test overwrites full JSON; interaction tests merge into it. Safe for normal sequential run; partial `--grep` runs produce incomplete JSON. Low risk for local analysis tool.
+- `e2e/tests/performance.spec.ts:5` — `process.cwd()` for REPORT_DIR: works from monorepo root; would silently write to wrong path if run from `e2e/` directory. Low risk given documented `npm run test:perf` entrypoint.
+- `package.json` — `test:a11y`, `@axe-core/playwright`, `test:coverage` changes visible in diff belong to stories 4-6 and 4-4; not part of 4-5 scope; reviewed with those stories.
+
+## Deferred from: code review of 4-4-test-coverage-analysis (2026-04-28)
+
+- `server/run-coverage.mjs`: `run()` has no explicit files glob — auto-discovery consistent with existing `npm test` pattern; acceptable until test structure changes
+- CI runs unit tests and coverage steps separately — tests execute twice (~30s overhead); by design per spec; revisit if CI time becomes a concern
+- No coverage artifact upload in CI — `actions/upload-artifact` not added; useful for PR comments/badges but out of scope for this story
+- `client/vite.config.ts`: coverage config omits `reporter` — no HTML/LCOV output; add when coverage reporting dashboard is needed
+- Root `package.json` `test:coverage` uses manual `&&` chaining — new workspaces added in future will be silently excluded; low risk for current project size
+
+## Deferred from: code review of 4-3-dockerfiles-and-docker-compose (2026-04-28)
+
+- Dev/prod port conflict: `server` (no profile) and `server-dev` (profile: dev) both bind port 3000; decided to document mutual exclusivity in README rather than change Compose profiles
+- Unpinned image tags (`node:22-alpine`, `nginx:stable-alpine`) — reproducibility risk; acceptable for development context
+- nginx missing security headers (X-Frame-Options, CSP, Referrer-Policy) — valid hardening; out of story scope
+- `CORS_ORIGIN` / `VITE_API_URL` hardcoded as `localhost` — spec explicitly notes intentional for local-only Docker Compose setup; defer to a deployment/production story
+- `server/routes/healthzRoutes.ts`: `SELECT 1` doesn't verify migrations have run — spec requires DB accessibility check only, not schema validation
+- `server-dev` runs `npm ci` on every container start — dev DX concern, not a correctness issue
+- `client/Dockerfile` npm ci layer cache order — minor optimization; npm install before full source copy would improve layer caching
+- gzip/brotli compression missing from nginx config — optimization, not in spec
+- `healthzRoutes.ts` catch block swallows TypeErrors alongside SqliteErrors — acceptable for a health-check endpoint; 503 on any error is fine
+
 ## Deferred from: code review of 4-2-readme-and-architecture-decision-summary (2026-04-28)
 
 - `styles/` directory omitted from README project structure tree — `client/src/styles/index.css` exists but tree is intentionally abbreviated; cosmetic

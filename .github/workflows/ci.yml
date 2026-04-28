@@ -25,5 +25,11 @@ jobs:
       - name: Unit tests
         run: npm test --workspaces --if-present
 
+      - name: Coverage check (client)
+        run: npm run test:coverage -w client
+
+      - name: Coverage check (server)
+        run: npm run test:coverage -w server
+
       - name: Shared types test
         run: npm run test:shared

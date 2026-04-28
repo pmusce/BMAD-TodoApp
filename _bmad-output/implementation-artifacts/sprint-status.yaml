@@ -1,5 +1,5 @@
 # generated: 2026-04-27
-# last_updated: 2026-04-28T18:00:00
+# last_updated: 2026-04-28
 
 # project: Todo App
 # project_key: NOKEY
@@ -76,9 +76,9 @@ development_status:
   epic-4: in-progress
   4-1-playwright-e2e-test-specs: done
   4-2-readme-and-architecture-decision-summary: done
-  4-3-dockerfiles-and-docker-compose: backlog
-  4-4-test-coverage-analysis: backlog
-  4-5-performance-testing: backlog
-  4-6-accessibility-testing: backlog
-  4-7-security-review: backlog
+  4-3-dockerfiles-and-docker-compose: done
+  4-4-test-coverage-analysis: done
+  4-5-performance-testing: done
+  4-6-accessibility-testing: done
+  4-7-security-review: done
   epic-4-retrospective: optional

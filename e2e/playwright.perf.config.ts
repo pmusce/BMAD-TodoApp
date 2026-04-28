@@ -2,17 +2,17 @@ import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   testDir: './tests',
-  testIgnore: '**/performance*.spec.ts',
-  timeout: 30_000,
-  reporter: [['html'], ['list']],
+  testMatch: '**/performance*.spec.ts',
+  timeout: 120_000,
+  reporter: [['html', { outputFolder: '../playwright-report-perf' }], ['list']],
   forbidOnly: !!process.env.CI,
   use: {
     baseURL: 'http://localhost:5173',
-    trace: 'on-first-retry',
+    trace: 'off',
   },
   projects: [
     {
-      name: 'chromium',
+      name: 'performance',
       use: { ...devices['Desktop Chrome'] },
     },
   ],
