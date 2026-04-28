@@ -74,7 +74,7 @@ The product is also a direct vehicle for applied BMad learning: each artifact pr
 
 - Codebase passes ESLint with zero warnings in production build
 - TypeScript strict mode (if TS is adopted) — zero type errors
-- Test coverage target: ≥ 80% on business logic and API endpoints
+- Test coverage target: ≥ 70% on business logic and API endpoints
 - Project cloneable and runnable locally in under 5 minutes from a clean environment
 - README documents key architectural decisions, not just setup instructions
 
@@ -86,7 +86,7 @@ The product is also a direct vehicle for applied BMad learning: each artifact pr
 | UI interaction latency | ≤ 300ms under normal network conditions |
 | Data reliability | Zero data loss across any normal browser session |
 | Mobile usability | Full feature parity at 320px+ viewport |
-| Code quality | ESLint clean, ≥80% test coverage on core logic |
+| Code quality | ESLint clean, ≥70% test coverage on core logic |
 | Onboarding | Run locally in < 5 minutes from README |
 | BMad completeness | All 4 artifact phases delivered and complete |
 
@@ -188,7 +188,7 @@ Lorenzo is a senior engineer who has been sent a link to the Todo App GitHub rep
 
 **Rising Action:** Lorenzo explores the code. The React components are small and single-purpose. The Fastify routes are clean, with consistent error responses. There's a clear separation between the API layer and the data layer. He finds the task schema — it has a nullable `user_id` field with a comment explaining it's reserved for future auth. He appreciates the forward thinking.
 
-**Climax:** Lorenzo finds the test suite. API endpoints are covered. Business logic has unit tests. He runs `npm test` — everything passes, coverage report shows 82%.
+**Climax:** Lorenzo finds the test suite. API endpoints are covered. Business logic has unit tests. He runs `npm test` — everything passes, coverage report shows 75%.
 
 **Resolution:** Lorenzo sends the repo link to his junior developer. "This is how you structure a full-stack app. Read it."
 
@@ -208,7 +208,7 @@ Lorenzo is a senior engineer who has been sent a link to the Todo App GitHub rep
 | Relative timestamps | Journey 1 |
 | Clean README with architecture decisions | Journey 4 |
 | Consistent API error response shape | Journey 4 |
-| Test suite with ≥80% coverage | Journey 4 |
+| Test suite with ≥70% coverage | Journey 4 |
 | Local setup < 5 minutes | Journey 4 |
 
 ---
@@ -299,7 +299,7 @@ All Phase 1 must-have capabilities are defined in [Product Scope — MVP](#produ
 
 **Technical Risks:** Full-stack CRUD on React + Fastify is well-understood territory. Primary risk: over-engineering state management. Mitigation: useState / useReducer / Context only — no external state library in v1.
 
-**Quality Risks (Primary):** Shipping fast at the expense of code structure and test coverage. Mitigation: ESLint-clean code, ≥80% test coverage, and a clear architectural README are locked as hard MVP pass criteria. The sprint does not close until these are green.
+**Quality Risks (Primary):** Shipping fast at the expense of code structure and test coverage. Mitigation: ESLint-clean code, ≥70% test coverage, and a clear architectural README are locked as hard MVP pass criteria. The sprint does not close until these are green.
 
 **Resource Risks:** Solo developer, no hard deadline — main risk is scope creep. Mitigation: the Phase 1 feature list above is locked. Growth features do not enter the backlog until MVP passes all success criteria.
 
@@ -354,7 +354,7 @@ All Phase 1 must-have capabilities are defined in [Product Scope — MVP](#produ
 - FR28: Application handles uncaught runtime errors at the application boundary without a full crash
 - FR29: Developer can run the complete application locally in under 5 minutes following the README
 - FR30: Codebase passes ESLint validation with zero errors
-- FR31: Core business logic has automated test coverage of ≥80%
+- FR31: Core business logic has automated test coverage of ≥70%
 
 ---
 

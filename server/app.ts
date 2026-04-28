@@ -14,13 +14,15 @@ const app: FastifyPluginAsync<AppOptions> = async (
   // This loads all plugins defined in plugins
   void fastify.register(AutoLoad, {
     dir: join(import.meta.dirname, 'plugins'),
-    options: opts
+    options: opts,
+    ignorePattern: /\.test\.(ts|js)$/
   })
 
   // This loads all routes defined in routes
   void fastify.register(AutoLoad, {
     dir: join(import.meta.dirname, 'routes'),
-    options: opts
+    options: opts,
+    ignorePattern: /\.test\.(ts|js)$/
   })
 }
 

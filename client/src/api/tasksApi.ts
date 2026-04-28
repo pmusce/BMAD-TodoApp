@@ -1,6 +1,6 @@
 import type { Task, CreateTaskPayload, UpdateTaskPayload, ApiError } from '@shared/types'
 
-const BASE = import.meta.env.VITE_API_URL
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 function isApiError(value: unknown): value is ApiError {
   if (!value || typeof value !== 'object') return false

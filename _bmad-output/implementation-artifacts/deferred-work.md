@@ -1,5 +1,20 @@
 # Deferred Work
 
+## Deferred from: code review of 4-2-readme-and-architecture-decision-summary (2026-04-28)
+
+- `styles/` directory omitted from README project structure tree — `client/src/styles/index.css` exists but tree is intentionally abbreviated; cosmetic
+- `shared/types.test.ts` omitted from README project structure under `shared/` — tree is intentionally abbreviated; cosmetic
+
+## Deferred from: code review of 4-1-playwright-e2e-test-specs (2026-04-28)
+
+- Add dedicated `/healthz` endpoint to Fastify instead of coupling webServer health-check to `/api/tasks` business route
+- Replace CSS class selectors (`.task-text--completed`, `.task-item`) in E2E tests with `data-testid` or ARIA role selectors for less brittle coupling
+- Add mutation-failure E2E coverage — `apiFailure.spec.ts` only tests GET /api/tasks 500; no coverage for POST/PATCH/DELETE failures
+- Add test data cleanup between E2E runs — tasks accumulate in SQLite; consider `beforeEach` API cleanup or DB reset
+- Wait for PATCH/DELETE round-trip responses in `completeTask`/`deleteTask` specs (currently only POST is awaited)
+- Guard against trailing slash in `VITE_API_URL` producing double-slash URLs
+- Missing subtask assertions: `deleteTask` doesn't assert empty-state; `apiFailure` doesn't assert empty-state is hidden (ACs still pass)
+
 ## Deferred from: code review of 3-7-spa-routing-homepage-and-global-styles (2026-04-28)
 
 - `index.css`: Native `[type="checkbox"]` `min-width/min-height` sizing does not reliably enlarge the tap hit area in WebKit/Safari — the visual checkbox remains ~16×16px and the extra space is passive. Story AC6 specifies "computed CSS size", which passes; a robust cross-browser approach would use an invisible `::after` overlay or size the `<label>` instead. Defer to a design/accessibility hardening pass.

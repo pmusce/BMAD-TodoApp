@@ -59,7 +59,7 @@ The FRs define a **thin-domain, thick-reliability** system. Domain logic is triv
 - **Rendering:** Pure client-side SPA — no SSR/SSG/hydration
 - **Auth:** None in v1 — `user_id` nullable, not writable via public API
 - **Browser support:** Evergreen only (last 2 versions of Chrome, Firefox, Safari, Edge)
-- **Deployment target:** TBD (to resolve in a later step)
+- **Deployment target:** Docker Compose (multi-container local/dev orchestration; no cloud deployment in v1)
 
 ---
 
@@ -237,12 +237,13 @@ fastify generate server --lang=ts
 
 | Decision | Choice | Rationale |
 |----------|--------|----------|
-| Frontend hosting | Vercel | Optimal for Vite SPA; free tier; zero-config deployment from GitHub |
-| Backend hosting | Railway | Supports persistent filesystem for SQLite file; free tier; simple Node.js deployment |
-| Environment config | `.env` files gitignored; `VITE_API_URL` on client; `PORT`, `DATABASE_PATH`, `CORS_ORIGIN` on server | 12-factor approach |
+| Containerization | Docker Compose | Multi-container orchestration for frontend (nginx), backend (Node.js), and SQLite volume; single `docker compose up` to run the full stack |
+| Frontend container | nginx serving Vite build | Multi-stage Dockerfile: build stage (Vite) + production stage (nginx); non-root user; health check |
+| Backend container | Node.js running Fastify | Multi-stage Dockerfile: build stage (TypeScript compile) + production stage (Node.js); non-root user; health check via `/api/healthz` |
+| Environment config | `.env` files gitignored; `VITE_API_URL` on client; `PORT`, `DATABASE_PATH`, `CORS_ORIGIN` on server | 12-factor approach; compose profiles for dev/test |
 | CI/CD | GitHub Actions: lint + unit tests on all pushes; E2E on `main` | NFR30, NFR31 — quality gates before merge |
-| Logging | Pino (provided by Fastify) — JSON in prod, pino-pretty in dev | Structured logs; zero additional config |
-| Monitoring | None in v1 — Railway dashboard for basic uptime | Appropriate for solo learning project |
+| Logging | Pino (provided by Fastify) — JSON in prod, pino-pretty in dev | Structured logs; accessible via `docker compose logs` |
+| Monitoring | Docker health checks + `docker compose logs` | Appropriate for solo learning project; containers report health status |
 
 ---
 
@@ -254,7 +255,7 @@ fastify generate server --lang=ts
 4. **`useTasks` hook + API client** — fetch wrappers + `useTasks.test.ts` written alongside
 5. **React components** — `TaskInput`, `TaskList`, `TaskItem`, `ErrorBoundary`, loading/empty/error states + co-located `.test.tsx` files written alongside each component
 6. **E2E tests** — Playwright spec files for all 4 core journeys (full stack must be running)
-7. **Deployment config** — Vercel + Railway + GitHub Actions CI
+7. **Containerization** — Dockerfiles + docker-compose.yml + GitHub Actions CI
 
 **`package.json` test scripts (all three levels):**
 
@@ -685,8 +686,9 @@ Browser
 
 #### Deployment Integration Points
 
-- **Vercel** builds `client/` with `vite build`; serves `dist/` as static SPA; `VITE_API_URL` set to Railway URL.
-- **Railway** runs `node server/build/server.js`; mounts persistent volume at `./data/` for SQLite file; `DATABASE_PATH` + `CORS_ORIGIN` set via Railway environment.
+- **Docker Compose** orchestrates `client` (nginx) and `server` (Node.js) containers on a shared network; a named volume persists the SQLite database at `server/data/`; `VITE_API_URL` is baked into the client build and points to the server container.
+- **Health checks**: Backend exposes `GET /api/healthz` returning `{ "status": "ok" }` (200) or `{ "status": "error" }` (503); both Dockerfiles include `HEALTHCHECK` instructions.
+- **Compose profiles**: `dev` profile mounts source volumes for hot-reload; `test` profile runs the test suite in containers.
 - **GitHub Actions** runs `npm test --workspaces` (unit) on all pushes; Playwright E2E on `main` using `playwright.config.ts` `webServer` to start both services locally.
 
 ---
@@ -701,7 +703,7 @@ Browser
 |------|--------|-------|
 | Vite 6 + Vitest | ✅ | Native integration via `vite.config.ts`; single config file for both |
 | Fastify v5 + `@fastify/cors` + `@fastify/sensible` | ✅ | All packages v5-compatible |
-| `better-sqlite3` 12.9.0 + Node.js sync API | ✅ | Synchronous API is correct for single-user Railway deployment |
+| `better-sqlite3` 12.9.0 + Node.js sync API | ✅ | Synchronous API is correct for single-user containerized deployment |
 | React Router 7.14.2 + React 18 | ✅ | React Router v7 targets React 18+ |
 | Playwright 1.59.1 + `webServer` monorepo config | ✅ | Standard Playwright multi-server pattern |
 | TypeScript strict + `shared/types.ts` + `@shared/*` path alias | ✅ | Single source of truth resolves uniformly in both workspaces |
@@ -832,4 +834,4 @@ resolve: {
 - Authentication (user_id reserved but not surfaced)
 - Database migration runner (manual SQL files are sufficient for single-table v1)
 - Rate limiting (single user)
-- Monitoring beyond Railway uptime dashboard
+- Monitoring beyond Docker health checks and compose logs

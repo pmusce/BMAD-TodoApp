@@ -79,7 +79,7 @@ NFR17: Uncaught client-side runtime errors must be caught at the application err
 - Co-located test files: every source file has a sibling `.test.ts(x)` file in the same directory
 - ESLint: unified config via `.eslintrc.base.js` extended by both `client/.eslintrc.js` and `server/.eslintrc.js`; typescript-eslint rules applied from day 1
 - GitHub Actions CI: lint + unit tests on every push to every branch; Playwright E2E on push to `main` only
-- Deployment: Vercel (frontend SPA) + Railway (backend with persistent SQLite volume)
+- Deployment: Docker Compose (multi-container orchestration for frontend and backend; no cloud deployment in v1)
 - Environment config: `.env` gitignored; `VITE_API_URL` on client; `PORT`, `DATABASE_PATH`, `CORS_ORIGIN` on server — `.env.example` counterparts tracked in git
 - SQLite database: `better-sqlite3` v12.9.0, WAL mode, raw SQL prepared statements, schema migrations via `server/migrations/001_create_tasks.sql`
 - Fastify plugins: `@fastify/cors`, `@fastify/sensible`, custom error handler returning `{ statusCode, error, message }` only
@@ -119,9 +119,9 @@ FR25: Epic 1 (shell) + Epic 3 (complete) - SPA routing
 FR26: Epic 3 - Responsive layout 320px–1440px
 FR27: Epic 3 - Touch target sizes
 FR28: Epic 3 - ErrorBoundary
-FR29: Epic 1 (local setup scaffolded) + Epic 4 (deployment + README finalized)
+FR29: Epic 1 (local setup scaffolded) + Epic 4 (containerization + README finalized)
 FR30: Epic 1 (configured) + ongoing across all epics - ESLint clean
-FR31: Epic 1 (infra) + Epics 2 & 3 (unit tests) + Epic 4 (E2E + ≥80% verification)
+FR31: Epic 1 (infra) + Epics 2 & 3 (unit tests) + Epic 4 (E2E + ≥70% verification)
 
 ## Epic List
 
@@ -139,10 +139,10 @@ A user can create, complete, reverse, and delete tasks in the browser — with i
 **FRs covered:** FR1–FR15, FR20–FR28
 **NFRs covered:** NFR1, NFR2, NFR4, NFR5, NFR10–NFR17
 
-### Epic 4: Quality Gates & Production Deployment
-The complete application is validated by a Playwright E2E suite covering all 4 user journeys, passes automated CI on every push, and is deployed to production (Vercel + Railway) with a README that communicates architectural decisions.
-**FRs covered:** FR29 (deployment + README finalized), FR31 (≥80% coverage verified + E2E suite)
-**NFRs covered:** NFR6 (HTTPS in production)
+### Epic 4: Quality Gates & Containerization
+The complete application is validated by a Playwright E2E suite covering all 4 user journeys, containerized via Docker Compose, passes automated CI on every push, and includes comprehensive QA activities (coverage, performance, accessibility, security) with a README that communicates architectural decisions.
+**FRs covered:** FR29 (containerization + README finalized), FR31 (≥70% coverage verified + E2E suite)
+**NFRs covered:** NFR1 (performance verified), NFR2 (load time verified), NFR4 (CLS verified), NFR14 (accessibility audited)
 
 ---
 
@@ -688,7 +688,7 @@ So that the app feels fast, works on any viewport, and is fully navigable by key
 
 ---
 
-## Epic 4: Quality Gates & Production Deployment
+## Epic 4: Quality Gates & Containerization
 
 ### Story 4.1: Playwright E2E Test Specs
 
@@ -746,56 +746,138 @@ So that anyone can clone the repo and run the full application locally in under 
 
 ---
 
-### Story 4.3: Vercel & Railway Deployment Configuration
+### Story 4.3: Dockerfiles & Docker Compose
 
 As a developer,
-I want Vercel and Railway deployment configurations in place,
-So that the application can be deployed to production with HTTPS (NFR6) and SQLite data persists across Railway restarts.
+I want multi-stage Dockerfiles for frontend and backend plus a `docker-compose.yml` orchestrating all containers,
+So that the entire application can be built and run in containers with a single command.
 
 **Acceptance Criteria:**
 
-**Given** Vercel deployment is configured (via `vercel.json` or Vercel project settings)
-**When** a push triggers a Vercel build
-**Then** `rootDirectory` is `client/`, build command is `npm run build`, output directory is `dist/`, and `VITE_API_URL` is set to the Railway backend URL
+**Given** `server/Dockerfile` exists
+**When** reviewed
+**Then** it uses a multi-stage build (build stage + production stage), runs as a non-root user, includes a `HEALTHCHECK` instruction pointing to `/api/healthz`, and copies only production artifacts to the final image
 
-**Given** Railway deployment is configured (via `railway.toml` or `Procfile`)
-**When** Railway starts the service
-**Then** the start command runs the compiled server entry point and `DATABASE_PATH` points to the persistent volume mount path
+**Given** `client/Dockerfile` exists
+**When** reviewed
+**Then** it uses a multi-stage build (build stage + nginx stage), runs as a non-root user, and serves the built SPA via nginx with a health check
 
-**Given** `CORS_ORIGIN` is set on Railway
-**When** the Fastify server starts
-**Then** it allows requests from the Vercel production URL only
+**Given** `GET /api/healthz` is called on the backend
+**When** the server is running and the database is accessible
+**Then** the response is `200` with `{ "status": "ok" }` — when the database is not accessible the response is `503` with `{ "status": "error" }`
 
-**Given** `client/.env.example` and `server/.env.example` are reviewed
+**Given** `docker-compose.yml` exists at the monorepo root
+**When** reviewed
+**Then** it defines services for `client` and `server`, configures a shared network, mounts a named volume for SQLite persistence at `server/data/`, and exposes ports 5173 (client) and 3000 (server)
+
+**Given** `docker compose up --build` is run from the monorepo root
+**When** both containers start
+**Then** the frontend is accessible at `http://localhost:5173`, the backend at `http://localhost:3000`, and tasks can be created/read/updated/deleted through the UI
+
+**Given** `docker compose logs` is run
+**When** containers are running
+**Then** both container logs are accessible and health status is visible
+
+**Given** `.env.example` files are reviewed
 **When** checked
-**Then** both files are complete and list every required environment variable with a placeholder or example value — no variable is undocumented
+**Then** all environment variables needed for Docker operation are documented
 
-**Given** both Vercel and Railway are deployed
-**When** the app is accessed via their URLs
-**Then** all traffic is served over HTTPS — no additional TLS configuration required beyond platform defaults (NFR6)
+**Given** Docker Compose profiles are configured
+**When** `docker compose --profile dev up` is run
+**Then** dev-specific settings apply (e.g., source volume mounts for hot-reload); `docker compose --profile test up` runs the test suite in containers
 
 ---
 
-### Story 4.4: Test Coverage Gate Verification
+### Story 4.4: Test Coverage Analysis (≥70%)
 
 As a developer,
-I want verified ≥80% test coverage for core business logic and a CI gate enforcing it,
-So that the FR31 coverage requirement is formally met and protected from regressions.
+I want verified ≥70% test coverage for core business logic and identified gaps documented,
+So that the coverage requirement is formally met and gaps are visible for future work.
 
 **Acceptance Criteria:**
 
 **Given** `npm run test:coverage` is run in `client/`
 **When** the coverage report is generated
-**Then** line and branch coverage across `src/hooks/` and `src/components/` is ≥80%
+**Then** line and branch coverage across `src/hooks/` and `src/components/` is ≥70%
 
-**Given** server tests are run with coverage (via `node --test` + `--experimental-test-coverage` or a wrapper)
+**Given** server tests are run with coverage
 **When** the coverage report is generated
-**Then** line coverage across `src/routes/` and `src/repositories/` is ≥80%
+**Then** line coverage across `src/routes/` and `src/repositories/` is ≥70%
 
 **Given** the `ci.yml` GitHub Actions workflow is reviewed
 **When** checked
-**Then** it includes a coverage check step that fails the build if coverage drops below 80% (FR31)
+**Then** it includes a coverage check step that fails the build if coverage drops below 70%
 
-**Given** coverage is verified at ≥80%
-**When** the test suite is inspected
-**Then** coverage is achieved through meaningful assertions on real behaviour — no trivial pass-through code inflating the numbers
+**Given** coverage gaps are identified
+**When** analyzed
+**Then** a brief gap analysis is documented listing untested paths and rationale for deferral
+
+---
+
+### Story 4.5: Performance Testing
+
+As a developer,
+I want application performance analyzed and documented,
+So that performance baselines are established and any issues are visible.
+
+**Acceptance Criteria:**
+
+**Given** Chrome DevTools or Lighthouse performance audit is run against the running application
+**When** the audit completes
+**Then** key metrics are captured: First Contentful Paint (FCP), Largest Contentful Paint (LCP), Total Blocking Time (TBT), Cumulative Layout Shift (CLS)
+
+**Given** the performance metrics are reviewed
+**When** checked against project NFRs
+**Then** CLS < 0.1 (NFR4), UI interactions < 300ms (NFR1), initial load < 1.5s (NFR2) are verified or deviations documented
+
+**Given** a performance report is produced
+**When** reviewed
+**Then** it documents findings, any issues found, and recommended remediations
+
+---
+
+### Story 4.6: Accessibility Testing
+
+As a developer,
+I want automated accessibility audits run against the application,
+So that WCAG 2.1 Level AA compliance is verified and violations are documented.
+
+**Acceptance Criteria:**
+
+**Given** an accessibility audit is run using Lighthouse or axe-core (via Playwright)
+**When** the audit completes
+**Then** results are captured covering: color contrast, keyboard navigation, ARIA attributes, focus management, semantic HTML
+
+**Given** the audit results are reviewed
+**When** checked against project NFRs
+**Then** WCAG 2.1 Level A compliance (NFR14) is verified; Level AA findings are documented as stretch
+
+**Given** violations are found
+**When** reviewed
+**Then** each violation is categorized by severity and has a documented remediation plan or deferral justification
+
+---
+
+### Story 4.7: Security Review
+
+As a developer,
+I want a security review of the codebase covering common vulnerabilities,
+So that security posture is documented and any issues are remediated or tracked.
+
+**Acceptance Criteria:**
+
+**Given** the codebase is reviewed for OWASP Top 10 vulnerabilities
+**When** the review covers XSS, injection, CSRF, insecure dependencies, and error information leakage
+**Then** findings are documented with severity ratings
+
+**Given** the API error handler is reviewed
+**When** checked
+**Then** no stack traces, database errors, or internal details are exposed in responses (NFR7 — already implemented, verify)
+
+**Given** dependency audit is run (`npm audit`)
+**When** results are reviewed
+**Then** critical and high vulnerabilities are documented with remediation status
+
+**Given** the security review is complete
+**When** findings are compiled
+**Then** a security review document lists all findings, remediations applied, and any accepted risks

@@ -24,7 +24,7 @@ export default defineConfig({
     },
     {
       command: 'npm run dev -w server',
-      url: 'http://localhost:3000',
+      url: 'http://localhost:3000/api/tasks',
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
     },
