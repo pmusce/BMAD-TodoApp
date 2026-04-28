@@ -43,9 +43,12 @@ Run from the monorepo root:
 |--------|-------------|
 | `npm test` | Run all workspace unit tests |
 | `npm run test:shared` | Test shared type definitions |
+| `npm run test:coverage` | Run unit tests with coverage for all workspaces |
 | `npm run lint` | Lint all workspaces |
 | `npm run test:e2e` | Run Playwright E2E tests (starts both servers automatically) |
 | `npm run test:e2e:ui` | Run E2E tests with Playwright UI |
+| `npm run test:perf` | Run Lighthouse performance tests |
+| `npm run test:a11y` | Run axe-core accessibility tests |
 
 ### Client (`client/`)
 
@@ -120,6 +123,8 @@ Browser → React components → useTasks hook → tasksApi.ts → Fastify route
 - **Client unit tests** — Vitest + React Testing Library, co-located with source files
 - **Server unit tests** — Node.js `node:test`, co-located with source files
 - **E2E tests** — Playwright in `e2e/tests/`, testing the full running stack
+- **Performance tests** — Lighthouse audits + interaction timing via Playwright
+- **Accessibility tests** — axe-core via `@axe-core/playwright`, WCAG 2.1 Level A + AA
 - **CI** — GitHub Actions runs lint + unit tests on every push; E2E on `main` only
 
 ## Project Structure
@@ -129,10 +134,14 @@ todo-app/
 ├── package.json                  # npm workspaces root
 ├── tsconfig.base.json            # shared TypeScript strict config
 ├── .eslintrc.base.js             # shared ESLint rules
+├── docker-compose.yml            # multi-container orchestration
 ├── shared/
-│   └── types.ts                  # Task, CreateTaskPayload, UpdateTaskPayload, ApiError
+│   ├── types.ts                  # Task, CreateTaskPayload, UpdateTaskPayload, ApiError
+│   └── types.test.ts             # shared type tests
 ├── client/
 │   ├── package.json
+│   ├── Dockerfile                # multi-stage build (Vite → nginx)
+│   ├── nginx.conf                # SPA routing + security headers
 │   ├── vite.config.ts
 │   ├── index.html
 │   └── src/
@@ -147,12 +156,17 @@ todo-app/
 │       │   ├── TaskItem.tsx      # single task (toggle + delete)
 │       │   ├── TaskList.tsx      # active/completed groups, loading/error states
 │       │   └── ErrorBoundary.tsx # catches React render crashes
-│       └── pages/
-│           └── HomePage.tsx      # composes TaskInput + TaskList
+│       ├── pages/
+│       │   └── HomePage.tsx      # composes TaskInput + TaskList
+│       └── styles/
+│           └── index.css         # global styles
 ├── server/
 │   ├── package.json
+│   ├── Dockerfile                # multi-stage build (TypeScript → Node.js)
 │   ├── app.ts                    # Fastify app factory
 │   ├── server.ts                 # entry point: listen on PORT
+│   ├── build.mjs                 # production build script
+│   ├── run-coverage.mjs          # coverage runner with threshold enforcement
 │   ├── migrations/
 │   │   └── 001_create_tasks.sql
 │   ├── plugins/
@@ -163,16 +177,46 @@ todo-app/
 │   │   └── TaskRepository.ts     # all SQL; snake_case → camelCase mapping
 │   └── routes/
 │       ├── taskRoutes.ts         # GET/POST/PATCH/DELETE /api/tasks
+│       ├── healthzRoutes.ts      # GET /api/healthz (container health check)
 │       └── schemas/
 │           └── taskSchemas.ts    # JSON Schema validation
 ├── e2e/
-│   ├── playwright.config.ts
-│   └── tests/                    # E2E specs (create, complete, delete, apiFailure)
+│   ├── playwright.config.ts      # E2E test config
+│   ├── playwright.perf.config.ts # performance test config
+│   └── tests/
+│       ├── createTask.spec.ts    # task creation E2E
+│       ├── completeTask.spec.ts  # task toggle E2E
+│       ├── deleteTask.spec.ts    # task deletion E2E
+│       ├── apiFailure.spec.ts    # error state E2E
+│       ├── accessibility.spec.ts # WCAG 2.1 A+AA audits
+│       └── performance.spec.ts   # Lighthouse + interaction timing
 └── .github/
     └── workflows/
         ├── ci.yml                # lint + unit tests (all branches)
         └── e2e.yml               # Playwright (main only)
 ```
+
+## Docker
+
+The application can be built and run in containers:
+
+```bash
+# Production (build and run)
+docker compose up --build
+
+# Development (with volume mounts for hot-reload)
+docker compose --profile dev up
+```
+
+Services:
+- **client** — nginx serving the built SPA at `http://localhost:5173`
+- **server** — Node.js running Fastify at `http://localhost:3000`
+
+SQLite data persists via a named volume mounted at `server/data/`.
+
+Health checks: `GET /api/healthz` (server), nginx health check (client).
+
+> **Note:** The `server` (no profile) and `server-dev` (dev profile) services both bind port 3000 — they are mutually exclusive. Use one or the other.
 
 ## Environment Variables
 
